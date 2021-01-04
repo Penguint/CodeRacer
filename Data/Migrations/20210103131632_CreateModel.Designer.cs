@@ -4,14 +4,16 @@ using CodeRacer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace CodeRacer.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210103131632_CreateModel")]
+    partial class CreateModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -19,19 +21,24 @@ namespace CodeRacer.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.1");
 
-            modelBuilder.Entity("CodeRacer.Models.Competition", b =>
+            modelBuilder.Entity("CodeRacer.Models.Contest", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
+                    b.Property<int>("JudgeId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Competitions");
+                    b.HasIndex("JudgeId");
+
+                    b.ToTable("Contests");
                 });
 
             modelBuilder.Entity("CodeRacer.Models.File", b =>
@@ -41,29 +48,18 @@ namespace CodeRacer.Data.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
+                    b.Property<string>("Discriminator")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Path")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Files");
-                });
 
-            modelBuilder.Entity("CodeRacer.Models.Submission", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .UseIdentityColumn();
-
-                    b.Property<int>("CompetitionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompetitionId");
-
-                    b.ToTable("Submissions");
+                    b.HasDiscriminator<string>("Discriminator").HasValue("File");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -266,39 +262,22 @@ namespace CodeRacer.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("CodeRacer.Models.CompetitionFile", b =>
+            modelBuilder.Entity("CodeRacer.Models.Program", b =>
                 {
                     b.HasBaseType("CodeRacer.Models.File");
 
-                    b.Property<int>("CompetitionId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("CompetitionId");
-
-                    b.ToTable("CompetitionFiles");
+                    b.HasDiscriminator().HasValue("Program");
                 });
 
-            modelBuilder.Entity("CodeRacer.Models.SubmissionFile", b =>
+            modelBuilder.Entity("CodeRacer.Models.Contest", b =>
                 {
-                    b.HasBaseType("CodeRacer.Models.File");
-
-                    b.Property<int>("SubmissionId")
-                        .HasColumnType("int");
-
-                    b.HasIndex("SubmissionId");
-
-                    b.ToTable("SubmissionFiles");
-                });
-
-            modelBuilder.Entity("CodeRacer.Models.Submission", b =>
-                {
-                    b.HasOne("CodeRacer.Models.Competition", "Owner")
-                        .WithMany("Submissions")
-                        .HasForeignKey("CompetitionId")
+                    b.HasOne("CodeRacer.Models.Program", "Judge")
+                        .WithMany()
+                        .HasForeignKey("JudgeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Owner");
+                    b.Navigation("Judge");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -350,52 +329,6 @@ namespace CodeRacer.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("CodeRacer.Models.CompetitionFile", b =>
-                {
-                    b.HasOne("CodeRacer.Models.Competition", "Owner")
-                        .WithMany("Inputs")
-                        .HasForeignKey("CompetitionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CodeRacer.Models.File", null)
-                        .WithOne()
-                        .HasForeignKey("CodeRacer.Models.CompetitionFile", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("CodeRacer.Models.SubmissionFile", b =>
-                {
-                    b.HasOne("CodeRacer.Models.File", null)
-                        .WithOne()
-                        .HasForeignKey("CodeRacer.Models.SubmissionFile", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.HasOne("CodeRacer.Models.Submission", "Owner")
-                        .WithMany("SubmissionFiles")
-                        .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Owner");
-                });
-
-            modelBuilder.Entity("CodeRacer.Models.Competition", b =>
-                {
-                    b.Navigation("Inputs");
-
-                    b.Navigation("Submissions");
-                });
-
-            modelBuilder.Entity("CodeRacer.Models.Submission", b =>
-                {
-                    b.Navigation("SubmissionFiles");
                 });
 #pragma warning restore 612, 618
         }
