@@ -16,7 +16,7 @@ namespace CodeRacer.Data
 
         public DbSet<Competition> Competitions { get; set; }
         public DbSet<Submission> Submissions { get; set; }
-        public DbSet<File> Files {get; set;}
+        public DbSet<MyFile> Files {get; set;}
         public DbSet<CompetitionFile> CompetitionFiles { get; set; }
         public DbSet<SubmissionFile> SubmissionFiles { get; set; }
     }

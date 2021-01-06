@@ -14,20 +14,20 @@ namespace CodeRacer.Models
         public IEnumerable<Submission> Submissions { get; set; }
         
     }
-    public class File
+    public class MyFile
     {
         public int Id { get; set; }
         public string Path { get; set; }
     }
 
     [Table("CompetitionFiles")]
-    public class CompetitionFile : File {
+    public class CompetitionFile : MyFile {
         public int CompetitionId { get; set; }
         public Competition Owner { get; set; }
     }
 
     [Table("SubmissionFiles")]
-    public class SubmissionFile : File {
+    public class SubmissionFile : MyFile {
         public int SubmissionId { get; set;}
         public Submission Owner { get; set; }
     }
